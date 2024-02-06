@@ -1,0 +1,72 @@
+esphome:
+  name: air-control
+  friendly_name: Air-Mitsubishi
+  platform: ESP8266
+  board: esp01_1m
+
+# Enable logging
+logger:
+  # ESP8266 only - disable serial port logging, as the HeatPump component
+  # needs the sole hardware UART on the ESP8266
+  baud_rate: 0
+  logs:
+    component: ERROR
+
+  # Sync time with Home Assistant.
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+external_components:
+  - source: github://wrouesnel/esphome-mitsubishiheatpump
+
+climate:
+  - platform: mitsubishi_heatpump
+    name: "Air Control"
+    hardware_uart: UART0
+    supports:
+      mode: ['COOL', 'FAN_ONLY', 'DRY']
+      fan_mode: ['AUTO', 'LOW', 'MEDIUM', 'MIDDLE', 'HIGH']
+      swing_mode: ['OFF', 'VERTICAL', 'HORIZONTAL', 'BOTH']
+    
+    horizontal_vane_select:
+      name: Horizontal Vane
+    vertical_vane_select:
+      name: Vertical Vane
+    
+    visual:
+      min_temperature: 16
+      max_temperature: 31
+      temperature_step: 0.5
+
+    # Optional
+    update_interval: 25ms
+
+# Sensors with general information.
+sensor:
+
+  # WiFi Signal sensor.
+  - platform: wifi_signal
+    name: WiFi Signal
+    update_interval: 15s
+
+# Enable Home Assistant API
+api:
+
+wifi:
+  ssid: !secret wifi_ssid # input your secrete wifi SSID
+  password: !secret wifi_password # input your secrete wifi password
+  fast_connect: true
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Air-Mitsu"
+    password: !secret wifi_password # input your secrete wifi password
+
+  # Example configuration entry
+web_server:
+  port: 80
+
+captive_portal:
+
+ota:
